@@ -15,7 +15,6 @@ Temel Ozellikler
     Kapsamli Okuyucu Arayuzu
 
     Fiziksel kitap hissiyati veren gercekci sayfa cevirme animasyonlari.
-    Tam ekran okuma modu.
     Sayfa bazli ilerleme kaydi ve kitap bitirme yuzdesinin anlik hesaplanmasi.
 
     Yapay Zeka ile Temassiz Kontrol
