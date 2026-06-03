@@ -1,12 +1,14 @@
 
-import { api } from './api.js';
+import { api } from './api.js?v=14';
 import {
     debounce,           // Çok sık tetiklenen fonksiyonları yavaşlatmak (geciktirmek) için kullanılır.
     showToast,          // Ekranda küçük bildirim mesajları (toast) göstermek için kullanılır.
     getQueryParam,      // URL'den parametre okumak için kullanılır (örneğin bookId).
     escapeHtml,         // HTML enjeksiyon (XSS) saldırılarını engellemek için metinleri güvenli hale getirir.
     calcProgressPercent // Okuma ilerleme yüzdesini hesaplamak için kullanılır.
-} from './utils.js';
+} from './utils.js?v=14';
+
+import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
 
 
 
@@ -17,6 +19,15 @@ let pageFlip = null;          // St.PageFlip kütüphanesinin (sayfa çevirme an
 let currentPageIndex = 0;     // Kullanıcının şu an bulunduğu sayfanın indeksi
 let totalRenderedPages = 0;   // Kapaklar dahil ekrana çizdirilen toplam sayfa sayısı
 
+let isPlaying = false;        // Sesli okuma (TTS) durumu
+let currentUtterance = null;  // TTS nesnesi
+
+// Kamera Takip (Face Tracking) Değişkenleri
+let faceLandmarker = null;
+let cameraActive = false;
+let videoElement = null;
+let lastVideoTime = -1;
+let faceTrackCooldown = false;
 
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -120,6 +131,12 @@ function renderReaderShell() {
             </div>
         </div>
 
+        <div id="camera-container" class="camera-preview hidden">
+            <video id="camera-video" autoplay playsinline></video>
+            <div id="camera-status" class="camera-status">Kamera Hazırlanıyor...</div>
+            <div id="camera-direction" class="camera-direction-overlay">➔</div>
+        </div>
+        
         <div class="reader-controls">
             <!-- Önceki Sayfa Butonu -->
             <button class="reader-nav-btn" id="prev-btn" title="Önceki sayfa">
@@ -137,6 +154,22 @@ function renderReaderShell() {
                 <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
 
+            <!-- Sesli Oku Butonu -->
+            <button class="reader-nav-btn" id="tts-btn" title="Sesli Oku" style="margin-left: 8px;">
+                <svg viewBox="0 0 24 24" id="tts-icon">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+            </button>
+
+            <!-- Kamera İle Kontrol Butonu -->
+            <button class="reader-nav-btn" id="camera-btn" title="Kamera ile Kontrol" style="margin-left: 8px;">
+                <svg viewBox="0 0 24 24" id="camera-icon">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+            </button>
+
             <!-- Tam Ekran Butonu -->
             <button class="reader-fullscreen-btn" id="fullscreen-btn" title="Tam ekran">
                 <svg viewBox="0 0 24 24" id="fullscreen-icon">
@@ -152,6 +185,8 @@ function renderReaderShell() {
     document.getElementById('next-btn')?.addEventListener('click', () => pageFlip?.flipNext());
     document.getElementById('page-slider')?.addEventListener('input', onSliderChange);
     document.getElementById('fullscreen-btn')?.addEventListener('click', toggleFullscreen);
+    document.getElementById('tts-btn')?.addEventListener('click', toggleTTS);
+    document.getElementById('camera-btn')?.addEventListener('click', toggleCamera);
 }
 
 
@@ -201,7 +236,12 @@ function createPageFlip(startPage = 0) {
     pageFlip.on('flip', (e) => {
         currentPageIndex = e.data; // Yeni sayfanın indeksini al
         syncUI();                  // Arayüzdeki (UI) sayfa sayılarını ve ilerleme çubuğunu güncelle
-        debouncedSave();           // Okunan sayfayı veritabanına kaydet (Sunucuyu yormamak için gecikmeli kaydeder)
+        debouncedSave();           // Okunan sayfayı veritabanına kaydet
+        if (isPlaying) {
+            window.speechSynthesis?.cancel();
+            isPlaying = false;
+            updateTTSIcon();
+        }
     });
 
     pageFlip.on('changeState', () => syncUI());
@@ -397,14 +437,90 @@ function initKeyboard() {
 const debouncedSave = debounce(async () => {
     if (!bookId || !pageFlip) return;
 
-    const contentPage = Math.max(0, pageFlip.getCurrentPageIndex() - 1);
+    const total = Math.max(1, pages.length); // Prevent 0
+    const contentPage = Math.min(total, currentPageIndex);
     try {
-
-        await api.updateProgress(bookId, contentPage, pages.length);
-    } catch (_) { 
-         
+        await api.updateProgress(bookId, contentPage, total);
+    } catch (err) { 
+        console.error("Progress save error:", err);
     }
-}, 2000); // 2000ms = 2 Saniye (En son çevirmeden 2 saniye sonra veritabanına kaydeder)
+}, 500); // Test sırasında hemen algılanması için süreyi 0.5 saniyeye indirdik
+
+// Kullanıcı sayfadan çıkarken (örn: Geri tuşuna basarken) son ilerlemeyi anında kaydet!
+window.addEventListener('beforeunload', () => {
+    if (!bookId || !pageFlip) return;
+    const total = Math.max(1, pages.length);
+    const contentPage = Math.min(total, currentPageIndex);
+    // Use keepalive to ensure the request is sent even as the page unloads
+    const userId = localStorage.getItem('kitapoku_user_id') || '11111111-1111-1111-1111-111111111111';
+    fetch(`/api/users/${userId}/progress/${bookId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPage: contentPage, totalPages: total }),
+        keepalive: true
+    }).catch(() => {});
+});
+
+function toggleTTS() {
+    if (!('speechSynthesis' in window)) {
+        showToast('Tarayıcınız sesli okumayı desteklemiyor.', 'error');
+        return;
+    }
+
+    if (isPlaying) {
+        window.speechSynthesis.cancel();
+        isPlaying = false;
+        updateTTSIcon();
+        return;
+    }
+
+    const currentIdx = pageFlip.getCurrentPageIndex();
+    if (currentIdx === 0 || currentIdx > pages.length) {
+        showToast('Okunacak metin bulunamadı (Kapak sayfasındasınız).', 'info');
+        return;
+    }
+
+    const pageContent = pages[currentIdx - 1]?.content || pages[currentIdx - 1]?.Content || pages[currentIdx - 1]?.text || pages[currentIdx - 1]?.Text || '';
+    
+    // HTML taglarını temizle
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = pageContent;
+    const cleanText = tempDiv.textContent || tempDiv.innerText || '';
+
+    if (!cleanText.trim()) {
+        showToast('Bu sayfada okunacak metin yok.', 'info');
+        return;
+    }
+
+    currentUtterance = new SpeechSynthesisUtterance(cleanText);
+    currentUtterance.lang = 'tr-TR'; // Türkçe
+    currentUtterance.rate = 0.9;     // Hafif yavaş okuma, dinlemesi daha keyifli
+    
+    currentUtterance.onend = () => {
+        isPlaying = false;
+        updateTTSIcon();
+    };
+
+    currentUtterance.onerror = (e) => {
+        console.error('TTS error', e);
+        isPlaying = false;
+        updateTTSIcon();
+    };
+
+    window.speechSynthesis.speak(currentUtterance);
+    isPlaying = true;
+    updateTTSIcon();
+}
+
+function updateTTSIcon() {
+    const icon = document.getElementById('tts-icon');
+    if (!icon) return;
+    if (isPlaying) {
+        icon.innerHTML = `<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>`;
+    } else {
+        icon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>`;
+    }
+}
 
 
 
@@ -421,6 +537,133 @@ function initHeaderScroll() {
             ticking = true;
         }
     });
+}
+
+// --- Face Tracking (Kamera ile Sayfa Çevirme) --- //
+
+async function toggleCamera() {
+    if (cameraActive) {
+        stopCamera();
+        return;
+    }
+    const container = document.getElementById('camera-container');
+    const status = document.getElementById('camera-status');
+    const btnIcon = document.getElementById('camera-icon');
+    
+    if (!videoElement) {
+        videoElement = document.getElementById('camera-video');
+    }
+
+    container.classList.remove('hidden');
+    container.classList.add('active');
+    // Kamerayı kapatma ikonu (üstü çizili)
+    btnIcon.innerHTML = `<path d="M1 1l22 22"></path><path d="M21 21H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle>`;
+    
+    status.textContent = "Kamera başlatılıyor...";
+    
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 } });
+        videoElement.srcObject = stream;
+        videoElement.addEventListener("loadeddata", predictWebcam);
+        cameraActive = true;
+        status.textContent = "Model yükleniyor...";
+        
+        if (!faceLandmarker) {
+            await setupFaceLandmarker();
+        }
+        status.textContent = "Yüz Tespiti Aktif";
+    } catch (err) {
+        console.error(err);
+        status.textContent = "Kamera erişim hatası!";
+        container.classList.add('error');
+        showToast('Kameraya erişilemedi.', 'error');
+    }
+}
+
+function stopCamera() {
+    cameraActive = false;
+    const container = document.getElementById('camera-container');
+    const btnIcon = document.getElementById('camera-icon');
+    if (container) container.classList.add('hidden');
+    if (container) container.classList.remove('active', 'error');
+    if (videoElement && videoElement.srcObject) {
+        videoElement.srcObject.getTracks().forEach(track => track.stop());
+    }
+    if (btnIcon) {
+        btnIcon.innerHTML = `<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle>`;
+    }
+}
+
+async function setupFaceLandmarker() {
+    // CDN üzerinden MediaPipe wasm dosyaları çağrılıyor
+    const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+    );
+    faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+        baseOptions: {
+            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+            delegate: "GPU"
+        },
+        outputFaceBlendshapes: false,
+        runningMode: "VIDEO",
+        numFaces: 1
+    });
+}
+
+async function predictWebcam() {
+    if (!cameraActive) return;
+    
+    if (faceLandmarker && videoElement.currentTime !== lastVideoTime) {
+        lastVideoTime = videoElement.currentTime;
+        const results = faceLandmarker.detectForVideo(videoElement, performance.now());
+        
+        if (results.faceLandmarks && results.faceLandmarks.length > 0) {
+            const landmarks = results.faceLandmarks[0];
+            const noseTip = landmarks[1];
+            const leftCheek = landmarks[234];
+            const rightCheek = landmarks[454];
+            
+            // X koordinatlarına bakarak kafa dönüşünü hesapla
+            const faceWidth = Math.abs(rightCheek.x - leftCheek.x);
+            const noseOffset = (noseTip.x - Math.min(leftCheek.x, rightCheek.x)) / faceWidth;
+            
+            if (!faceTrackCooldown) {
+                // Kafayı ÇOK HAFİFÇE sağa veya sola çevirdiğinde algılaması için eşikleri daha da daralttık (0.53 ve 0.47)
+                if (noseOffset > 0.53) {
+                    triggerTurn('left');
+                } else if (noseOffset < 0.47) {
+                    triggerTurn('right');
+                }
+            }
+        }
+    }
+    
+    if (cameraActive) {
+        window.requestAnimationFrame(predictWebcam);
+    }
+}
+
+function triggerTurn(direction) {
+    faceTrackCooldown = true;
+    
+    const dirOverlay = document.getElementById('camera-direction');
+    if (dirOverlay) {
+        if (direction === 'right') {
+            dirOverlay.textContent = "➔"; // Sağa bakıldı -> Sonraki Sayfa
+            pageFlip?.flipNext();
+        } else {
+            dirOverlay.textContent = "⬅"; // Sola bakıldı -> Önceki Sayfa
+            pageFlip?.flipPrev();
+        }
+        
+        dirOverlay.classList.add('show');
+        setTimeout(() => dirOverlay.classList.remove('show'), 500);
+    }
+    
+    // 2 saniye bekleme süresi (Yanlışlıkla arka arkaya çevirmemesi için)
+    setTimeout(() => {
+        faceTrackCooldown = false;
+    }, 2000);
 }
 
 function showLoading() {

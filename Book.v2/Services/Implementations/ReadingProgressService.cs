@@ -45,6 +45,17 @@ public class ReadingProgressService : IReadingProgressService
             progress.UpdateProgress(currentPage, totalPages);
         }
 
+        // --- NEW: Automatically add to reading list if not there ---
+        var readingListEntry = await _context.ReadingListEntries
+            .FirstOrDefaultAsync(rle => rle.UserId == userId && rle.BookId == bookId);
+        
+        if (readingListEntry is null)
+        {
+            readingListEntry = ReadingListEntry.Create(userId, bookId);
+            await _context.ReadingListEntries.AddAsync(readingListEntry);
+        }
+        // -----------------------------------------------------------
+
         await _context.SaveChangesAsync();
 
         return new ReadingProgressDto(

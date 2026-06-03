@@ -1,6 +1,6 @@
 
 
-import { api } from './api.js';
+import { api } from './api.js?v=14';
 import {
     showToast,
     createSkeleton,
@@ -9,7 +9,7 @@ import {
     truncate,
     BOOK_ICON_SVG,
     CHEVRON_RIGHT_SVG,
-} from './utils.js';
+} from './utils.js?v=14';
 
 
 window.handleImgError = function(img, title) {
@@ -222,49 +222,85 @@ async function loadReadingList() {
 
 
 function renderReadingList() {
+    const completedBooksSection = document.getElementById('completed-books');
+    const completedBooksGrid = document.getElementById('completed-books-grid');
+
     if (!continueReadingGrid || !continueReadingSection) return;
 
-    if (readingList.length === 0) {
+    const incompleteBooks = readingList.filter(item => {
+        const percent = Math.round(item.progress?.progressPercentage || item.Progress?.ProgressPercentage || 0);
+        return percent < 100;
+    });
+
+    const completedBooks = readingList.filter(item => {
+        const percent = Math.round(item.progress?.progressPercentage || item.Progress?.ProgressPercentage || 0);
+        return percent >= 100;
+    });
+
+    // Okumaya Devam Et Kısmı
+    if (incompleteBooks.length === 0) {
         continueReadingSection.style.display = 'none';
-        return;
+    } else {
+        continueReadingSection.style.display = 'block';
+        continueReadingGrid.innerHTML = incompleteBooks.map(item => {
+            const book = item.book || item.Book || item;
+            const bookId = book.id || book.Id || item.bookId || item.BookId;
+            const title = book.title || book.Title || 'Bilinmeyen Kitap';
+            const author = book.author || book.Author || '';
+            const coverUrl = book.coverImageUrl || book.CoverImageUrl || book.coverUrl || book.CoverUrl || '';
+            const percent = Math.round(item.progress?.progressPercentage || item.Progress?.ProgressPercentage || 0);
+            return { bookId, title, author, coverUrl, percent, originalIndex: readingList.indexOf(item) };
+        })
+        .sort((a, b) => a.originalIndex - b.originalIndex)
+        .map(data => createReadingCardHtml(data, "Okumaya Devam Et")).join('');
     }
 
-    continueReadingSection.style.display = 'block';
+    // Bitirilen Kitaplar Kısmı
+    if (completedBooksSection && completedBooksGrid) {
+        if (completedBooks.length === 0) {
+            completedBooksSection.style.display = 'none';
+        } else {
+            completedBooksSection.style.display = 'block';
+            completedBooksGrid.innerHTML = completedBooks.map(item => {
+                const book = item.book || item.Book || item;
+                const bookId = book.id || book.Id || item.bookId || item.BookId;
+                const title = book.title || book.Title || 'Bilinmeyen Kitap';
+                const author = book.author || book.Author || '';
+                const coverUrl = book.coverImageUrl || book.CoverImageUrl || book.coverUrl || book.CoverUrl || '';
+                const percent = Math.round(item.progress?.progressPercentage || item.Progress?.ProgressPercentage || 0);
+                return { bookId, title, author, coverUrl, percent, originalIndex: readingList.indexOf(item) };
+            })
+            .sort((a, b) => a.originalIndex - b.originalIndex)
+            .map(data => createReadingCardHtml(data, "Tekrar Oku")).join('');
+        }
+    }
+}
 
-    const cards = readingList.map(item => {
-        const book = item.book || item.Book || item;
-        const bookId = book.id || book.Id || item.bookId || item.BookId;
-        const title = book.title || book.Title || 'Bilinmeyen Kitap';
-        const author = book.author || book.Author || '';
-        const coverUrl = book.coverImageUrl || book.CoverImageUrl || book.coverUrl || book.CoverUrl || '';
-        const currentPage = item.currentPage || item.CurrentPage || item.progress?.currentPage || 0;
-        const totalPages = item.totalPages || item.TotalPages || book.totalPages || book.TotalPages || item.progress?.totalPages || 0;
-        const percent = calcProgressPercent(currentPage, totalPages);
+function createReadingCardHtml(data, actionText) {
+    const coverHtml = data.coverUrl
+        ? coverImg(data.coverUrl, data.title, true)
+        : `<div class="reading-card-cover-placeholder">
+               <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+           </div>`;
 
-        const coverHtml = coverUrl
-            ? coverImg(coverUrl, title, true)
-            : `<div class="reading-card-cover-placeholder">
-                   <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-               </div>`;
-
-        return `
-            <div class="reading-card" data-book-id="${bookId}" onclick="window.location.href='reader.html?v=4&bookId=${bookId}'">
-                <div class="reading-card-cover">${coverHtml}</div>
-                <div class="reading-card-body">
-                    <div class="reading-card-title">${escapeHtml(title)}</div>
-                    <div class="reading-card-author">${escapeHtml(author)}</div>
-                    <div class="reading-card-progress">
-                        <div class="reading-card-progress-text">%${percent} tamamlandı</div>
-                        <div class="progress-bar">
-                            <div class="progress-bar-fill" style="width: ${percent}%"></div>
-                        </div>
+    return `
+        <div class="reading-card" data-book-id="${data.bookId}" onclick="window.location.href='reader.html?v=13&bookId=${data.bookId}'">
+            <div class="reading-card-cover">
+                ${coverHtml}
+                <div class="reading-card-overlay"><span>${actionText}</span></div>
+            </div>
+            <div class="reading-card-body">
+                <div class="reading-card-title">${escapeHtml(data.title)}</div>
+                <div class="reading-card-author">${escapeHtml(data.author)}</div>
+                <div class="reading-card-progress">
+                    <div class="reading-card-progress-text">%${data.percent} tamamlandı</div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: ${data.percent}%"></div>
                     </div>
                 </div>
             </div>
-        `;
-    }).join('');
-
-    continueReadingGrid.innerHTML = cards;
+        </div>
+    `;
 }
 
 

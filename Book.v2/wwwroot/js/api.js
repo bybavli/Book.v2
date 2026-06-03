@@ -1,7 +1,9 @@
 
 
 const API_BASE = '/api';
-const DEMO_USER_ID = '11111111-1111-1111-1111-111111111111';
+function getUserId() {
+    return localStorage.getItem('kitapoku_user_id') || '11111111-1111-1111-1111-111111111111';
+}
 
 
 async function request(endpoint, options = {}) {
@@ -75,12 +77,12 @@ export const api = {
     
 
     
-    async getReadingList(userId = DEMO_USER_ID) {
+    async getReadingList(userId = getUserId()) {
         return request(`/users/${userId}/reading-list`);
     },
 
     
-    async addToReadingList(bookId, userId = DEMO_USER_ID) {
+    async addToReadingList(bookId, userId = getUserId()) {
         return request(`/users/${userId}/reading-list`, {
             method: 'POST',
             body: JSON.stringify({ bookId }),
@@ -88,7 +90,7 @@ export const api = {
     },
 
     
-    async removeFromReadingList(bookId, userId = DEMO_USER_ID) {
+    async removeFromReadingList(bookId, userId = getUserId()) {
         return request(`/users/${userId}/reading-list/${bookId}`, {
             method: 'DELETE',
         });
@@ -98,12 +100,12 @@ export const api = {
     
 
     
-    async getProgress(bookId, userId = DEMO_USER_ID) {
+    async getProgress(bookId, userId = getUserId()) {
         return request(`/users/${userId}/progress/${bookId}`);
     },
 
     
-    async updateProgress(bookId, currentPage, totalPages, userId = DEMO_USER_ID) {
+    async updateProgress(bookId, currentPage, totalPages, userId = getUserId()) {
         return request(`/users/${userId}/progress/${bookId}`, {
             method: 'PUT',
             body: JSON.stringify({
@@ -117,7 +119,7 @@ export const api = {
     
 
     
-    async getRecommendations(count = 10, userId = DEMO_USER_ID) {
+    async getRecommendations(count = 10, userId = getUserId()) {
         return request(`/users/${userId}/recommendations?count=${count}`);
     },
 };

@@ -23,9 +23,13 @@ public class ReadingListService : IReadingListService
 
     public async Task<List<ReadingListDto>> GetUserReadingListAsync(Guid userId)
     {
-        var entries = await _readingListRepository.GetByUserIdAsync(userId);
+        var entries = (await _readingListRepository.GetByUserIdAsync(userId))
+            .DistinctBy(e => e.BookId)
+            .ToList();
         var progresses = await _progressRepository.GetAllByUserAsync(userId);
-        var progressLookup = progresses.ToDictionary(p => p.BookId);
+        var progressLookup = progresses
+            .GroupBy(p => p.BookId)
+            .ToDictionary(g => g.Key, g => g.First());
 
         return entries.Select(entry =>
         {
@@ -40,10 +44,10 @@ public class ReadingListService : IReadingListService
 
             return new ReadingListDto(
                 entry.BookId,
-                entry.Book.Title,
-                entry.Book.Author,
-                entry.Book.CoverImageUrl,
-                entry.Book.Genre,
+                entry.Book?.Title ?? "Bilinmeyen Kitap",
+                entry.Book?.Author ?? "Bilinmeyen Yazar",
+                entry.Book?.CoverImageUrl,
+                entry.Book?.Genre ?? "Genel",
                 entry.AddedAt,
                 progressDto);
         }).ToList();

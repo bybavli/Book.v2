@@ -1,68 +1,45 @@
-# Book.v2 - Okuma Platformu ve API Projesi 📚
+# BookOku Web Platform
 
-Modern web teknolojileri kullanılarak geliştirilmiş, N-Tier (Çok Katmanlı) mimari prensiplerine sadık kalan, veritabanı odaklı bir kitap okuma platformu ve yönetim sistemidir. 
+BookOku, modern web teknolojileri kullanilarak gelistirilmis kapsamli bir dijital kitap okuma platformudur. Sistem, kullanicilarin kitap okuma deneyimini artirmak icin yapay zeka tabanli yuz takibi, sesli okuma ve icerik tabanli oneriler gibi yenilikci ozellikler sunmaktadir.
 
-Bu proje hem gerçek bir web uygulamasının özelliklerini (3D sayfa çevirme, ilerleme kaydetme vb.) barındırır, hem de ileri düzey **Entity Framework Core (SQL Server)** veritabanı işlemlerini (Çoka-Çok ilişkiler, LINQ sorguları, CRUD) kapsar.
+## Teknolojiler ve Altyapi
 
-## 🎯 Projenin Amacı
-Projenin temel amacı, kullanıcıların kitap okuyabileceği, okuma listeleri oluşturabileceği ve kaldıkları yeri (okuma yüzdelerini) takip edebileceği bir sistem yaratmaktır. Arka planda ise Nesne Yönelimli Programlama (OOP) ve İlişkisel Veritabanı Mantığını kullanarak en iyi kodlama standartlarını (Clean Code, DTO kullanımı, Repository & Service katmanları) göstermeyi hedefler.
+- Backend: ASP.NET Core 10.0 (Web API)
+- Veritabani: Microsoft SQL Server (MSSQL), Entity Framework Core 10
+- Frontend: HTML5, CSS3, Vanilla JavaScript (Moduler Yapi)
+- Mimari: Katmanli Mimari (Servis ve Repository Pattern)
+- Yapay Zeka: MediaPipe Tasks Vision (Yuz Takibi)
+- Animasyon: St.PageFlip (Fiziksel Sayfa Cevirme Efekti)
 
-## ✨ Öne Çıkan Özellikler
-* **3D Etkileşimli Okuma:** Kitap sayfaları, gerçek bir kitap okuyormuş hissi veren `StPageFlip` animasyon motoru ile ekrana çizilir.
-* **Akıllı İlerleme Takibi (Debounce API):** Kullanıcı sayfaları hızlıca geçse dahi, sunucu yorulmaz. İlerleme verisi gecikmeli (debounce) ve güvenli bir şekilde arka planda veritabanına işlenir.
-* **Tam Ekran (Fullscreen) Desteği:** Dikkat dağıtıcı unsurları kaldırarak sürükleyici bir okuma deneyimi sunar.
-* **İçerik Tabanlı Öneri Algoritması (Recommendation):** Kullanıcının okuma listesindeki kitapların türlerine ve etiketlerine bakarak (Jaccard Benzerliği) ona yeni kitaplar önerir.
-* **Gelişmiş Veritabanı Mimarisi:** Tablolar arası `virtual ICollection` bağlantıları, Bire-Çok (One-to-Many) ve Çoka-Çok (Many-to-Many) ilişki kurguları ile boşta tablo bırakılmayan sağlam bir SQL Server altyapısı mevcuttur.
+## Temel Ozellikler
 
-## 🛠️ Kullanılan Teknolojiler
-* **Backend:** C# / .NET 10.0
-* **API:** ASP.NET Core Web API
-* **Veritabanı (ORM):** Entity Framework Core (Code-First)
-* **Veritabanı Sunucusu:** Microsoft SQL Server (MSSQL / LocalDB)
-* **Frontend:** Saf HTML5, CSS3, Vanilla JavaScript (Framework kullanılmamıştır)
-* **Kütüphaneler:** StPageFlip (Sayfa çevirme), System.Text.Json (ReferenceHandler.IgnoreCycles)
+1. Kapsamli Okuyucu Arayuzu
+- Fiziksel kitap hissiyati veren gercekci sayfa cevirme animasyonlari.
+- Tam ekran okuma modu.
+- Sayfa bazli ilerleme kaydi ve kitap bitirme yuzdesinin anlik hesaplanmasi.
 
----
+2. Yapay Zeka ile Temassiz Kontrol
+- Kullanici kamerasini kullanarak gercek zamanli yuz takibi.
+- Sadece hafif bas hareketleri ile sayfalari ileri veya geri cevirebilme.
+- Optimizasyonlu ve yuksek hassasiyetli burun/yanak aci hesaplamasi ile donanimi yormayan performans.
 
-## 🚀 Kurulum ve Çalıştırma Rehberi
+3. Sesli Okuma (Text-to-Speech)
+- Kitap sayfalarini tarayicinin yerlesik ses sentezleyicisi ile sesli okutma.
+- Okunmakta olan sayfalarin otomatik olarak takip edilmesi ve kalinan yerden devam edilebilmesi.
 
-Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları izleyebilirsiniz.
+4. Icerik Tabanli Onerme Sistemi (Recommendation Engine)
+- Kullanicinin daha once okudugu kitaplarin tur ve etiketlerine dayali ozel algoritma.
+- Jaccard benzerlik metrigi ve kategori ortusmeleri hesaplanarak kisisellestirilmis kitap tavsiyeleri sunulmasi.
 
-### Gereksinimler
-1. [**.NET 10.0 SDK**](https://dotnet.microsoft.com/download) veya üzeri yüklü olmalıdır.
-2. **Microsoft SQL Server** veya Visual Studio ile birlikte gelen **LocalDB** kurulu olmalıdır.
-3. Projeyi açmak için Visual Studio 2022 (veya VS Code) tavsiye edilir.
+5. Dinamik Kutuphane ve Okuma Listesi
+- Kullanicinin okumaya basladigi kitaplarin otomatik olarak okuma listesine eklenmesi.
+- Yarida kalan kitaplar icin gercek zamanli yuzdelik ilerleme gosterimi ("Okumaya Devam Et" bolumu).
+- Bitirilen kitaplarin ana sayfada ozel bir basari bolumunde listelenerek kullanici motivasyonunun artirilmasi.
 
-### Adım Adım Kurulum
+## Kurulum ve Calistirma
 
-**1. Projeyi Bilgisayarınıza İndirin:**
-```bash
-git clone https://github.com/KULLANICI_ADINIZ/Book.v2.git
-cd Book.v2/Book.v2
-```
-
-**2. Veritabanını Ayağa Kaldırın (Migration İşlemi):**
-Proje Code-First mimarisi ile yazıldığı için, aşağıdaki komutu çalıştırarak tabloların SQL Server'da otomatik oluşmasını sağlayın:
-```bash
-dotnet ef database update
-```
-*(Not: Hata alırsanız `dotnet tool install --global dotnet-ef` komutu ile Entity Framework CLI aracını kurun).*
-
-**3. Projeyi Çalıştırın:**
-Terminal üzerinden başlatmak için:
-```bash
-dotnet run
-```
-Veya **Visual Studio 2022** kullanıyorsanız, yukarıdaki yeşil "Run" (Oynat / F5) butonuna basmanız yeterlidir.
-
-**4. Tarayıcıda Açın:**
-Proje başarıyla derlendikten sonra tarayıcınızda otomatik olarak açılacaktır (Eğer açılmazsa `http://localhost:5258/` adresine gidebilirsiniz). 
-
----
-
-## 📋 Ödev ve Test Uç Noktaları
-Projenin Entity Framework ilişkilerini ve LINQ yeteneklerini test etmek için özel bir test arayüzü yazılmıştır.
-Proje çalışırken tarayıcınızın adres çubuğuna şunu yazarak test ekranına ulaşabilirsiniz:
-👉 **`http://localhost:5258/assignment.html`**
-
-Bu ekrandan C# tarafındaki `AssignmentController`'a istek atarak aracı (junction) tablolar üzerindeki `INNER JOIN` işlemlerini ve Filtreleme (`WHERE`) işlemlerini canlı olarak görebilirsiniz.
+1. Visual Studio 2022 veya daha yeni bir surum uzerinden projeyi acin.
+2. appsettings.json dosyasinda bulunan baglanti dizesinin (DefaultConnection) yerel SQL Server orneginize (Server=.;Database=BookDb) dogru isaret ettiginden emin olun.
+3. Projeyi derleyerek (Build) calistirin.
+4. Entity Framework Core, "BookDb" isimli veritabanini sunucunuzda otomatik olarak olusturacak ve icerisini baslangic icin gereken ornek kitaplar, sayfa icerikleri ve kullanici datalari ile dolduracaktir.
+5. Tarayicida acilan arayuz uzerinden platformu kullanmaya baslayabilirsiniz.

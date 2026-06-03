@@ -760,4 +760,63 @@ body.is-fullscreen .reader-container .page-turn-hint svg {
     stroke: rgba(255, 255, 255, 0.4);
 }
 
-
+/* --- Camera / Face Tracking Styles --- */
+.camera-preview {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 160px;
+    height: 120px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    z-index: 999;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255,255,255,0.1);
+}
+.camera-preview.active {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 20px rgba(var(--accent-green-rgb), 0.3);
+}
+.camera-preview.error {
+    border-color: #ff4444;
+}
+.camera-preview.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+}
+.camera-preview video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror effect */
+}
+.camera-status {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 0.7rem;
+    padding: 4px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+}
+.camera-direction-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: rgba(255,255,255,0.8);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+.camera-direction-overlay.show {
+    opacity: 1;
+}
