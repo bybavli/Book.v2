@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proje Ödevi LINQ Test Ekranı</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #F7F5F0; padding: 40px; color: #1C1917; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        h1 { font-size: 24px; border-bottom: 2px solid #124330; padding-bottom: 10px; margin-bottom: 20px; color: #124330; }
+        .radio-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .radio-group label { cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 10px; background: #f0f0f0; border-radius: 6px; transition: 0.2s; }
+        .radio-group label:hover { background: #e0e0e0; }
+        input[type="radio"] { cursor: pointer; }
+        button { background: #124330; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; transition: 0.2s; width: 100%; }
+        button:hover { background: #1a5c42; }
+        .result-box { margin-top: 30px; padding: 15px; background: #EBE6DD; border: 1px solid #D6D3D1; border-radius: 6px; min-height: 100px; white-space: pre-wrap; }
+        .lbl-title { font-weight: bold; margin-bottom: 10px; display: block; color: #124330; }
+        .nav-link { display: inline-block; margin-bottom: 20px; color: #124330; text-decoration: none; font-weight: bold; }
+        .nav-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="/" class="nav-link">&larr; Ana Kitap Okuma Ekranına Dön</a>
+        
+        <h1>LINQ Sorguları Test Ekranı (ContextDb)</h1>
+        <p>Aşağıdaki LINQ sorgularından birini seçerek Aracı Tablo (ReadingListEntry) üzerinde çalıştırın:</p>
+
+        <div class="radio-group">
+            <label>
+                <input type="radio" name="linqQuery" value="query1" checked> 
+                Sorgu 1: Kullanıcıların okuma listelerindeki tüm kitaplar (Eklenme tarihine göre)
+            </label>
+            <label>
+                <input type="radio" name="linqQuery" value="query2"> 
+                Sorgu 2: "Bilim Kurgu" türündeki kitapları listelerine ekleyen kullanıcılar
+            </label>
+        </div>
+
+        <button onclick="runQuery()">Sorguyu Çalıştır</button>
+
+        <div class="result-box">
+            <label class="lbl-title" id="lblQueryTitle">Sonuç Bekleniyor...</label>
+            <label id="lblResultData">Seçiminizi yapıp butona tıklayın. (Önce ana sayfadan giriş yapıp kitap eklemelisiniz)</label>
+        </div>
+    </div>
+
+    <script>
+        async function runQuery() {
+            const selectedQuery = document.querySelector('input[name="linqQuery"]:checked').value;
+            const lblTitle = document.getElementById('lblQueryTitle');
+            const lblData = document.getElementById('lblResultData');
+
+            lblTitle.textContent = "Yükleniyor...";
+            lblData.textContent = "";
+
+            try {
+                const response = await fetch('/api/assignment/linq/' + selectedQuery);
+                if (!response.ok) {
+                    throw new Error("Sunucu hatası: " + response.status + " (Test verisi yoksa boş dönebilir)");
+                }
+                const data = await response.json();
+                
+                lblTitle.textContent = data.query;
+                lblData.textContent = JSON.stringify(data.data, null, 2);
+            } catch (error) {
+                lblTitle.textContent = "Hata Oluştu";
+                lblData.textContent = error.message;
+            }
+        }
+    </script>
+
+</body>
+</html>

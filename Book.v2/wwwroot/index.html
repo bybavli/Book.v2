@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Book — Dijital kütüphaneniz. Binlerce kitabı keşfedin, okuyun ve kişisel kitaplığınızı oluşturun.">
+    <meta name="theme-color" content="#124330">
+    <title>Book — Dijital Kütüphaneniz</title>
+    
+    <script>
+        if (!window.location.search.includes('v=8')) {
+            window.location.replace(window.location.pathname + '?v=8');
+        }
+    </script>
+
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23124330'/><text x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='52' fill='white'>B</text></svg>">
+
+    
+    <link rel="stylesheet" href="css/variables.css?v=3">
+    <link rel="stylesheet" href="css/base.css?v=3">
+    <link rel="stylesheet" href="css/components.css?v=4">
+    <link rel="stylesheet" href="css/animations.css?v=3">
+</head>
+<body>
+
+    
+    <div class="ambient-background">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        
+        
+        <svg class="ambient-svg" width="100%" height="100%" viewBox="0 0 1440 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="animated-path" d="M0,400 C300,600 600,200 1440,400" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1.5"></path>
+            <path class="animated-path delay-1" d="M-100,200 C400,100 800,800 1540,500" fill="none" stroke="rgba(176, 122, 242, 0.1)" stroke-width="1"></path>
+        </svg>
+    </div>
+
+    
+    <header class="header">
+        <div class="header-inner">
+            
+            <a href="index.html?v=999" class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                </div>
+                <span class="logo-text">Book</span>
+            </a>
+
+            
+            <nav class="nav">
+                <a href="#discover" class="nav-link active" data-section="discover">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+                    </svg>
+                    <span>Keşfet</span>
+                </a>
+                <a href="#continue-reading" class="nav-link" data-section="continue-reading">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    <span>Kütüphanem</span>
+                </a>
+                <a href="#recommendations" class="nav-link" data-section="recommendations">
+                    <svg viewBox="0 0 24 24">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    <span>Benzer Kitaplar</span>
+                </a>
+            </nav>
+
+            
+            <div class="user-area">
+                
+                <div class="search-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text"
+                           class="search-input"
+                           id="search-input"
+                           placeholder="Kitap veya yazar ara…"
+                           autocomplete="off">
+                </div>
+
+                
+                <button class="logout-btn" id="logoutBtn" title="Çıkış Yap">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    
+    <main>
+
+        
+        <section class="hero">
+            <div class="hero-content auth-header" style="margin-bottom: 0;">
+                <div class="hero-greeting fade-up">Hoş Geldiniz</div>
+                <h1 class="split-text title-large" style="margin-bottom: 1.5rem; font-size: clamp(2rem, 5vw, 4rem);">
+                    <span class="part left">Dijital</span>
+                    <span class="part right">Kütüphane</span>
+                </h1>
+                <p class="hero-description fade-up delay-2">
+                    Binlerce kitap arasında gezinin, okuma listenizi oluşturun ve kaldığınız yerden devam edin.
+                </p>
+            </div>
+        </section>
+
+        
+        <section class="section" id="continue-reading" style="display: none;">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Okumaya Devam Et</h2>
+                    <p class="section-subtitle">Kaldığınız yerden devam edin</p>
+                </div>
+                <a href="#" class="section-link" data-section="continue-reading">
+                    Tümünü Gör
+                    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+            <div class="horizontal-scroll" id="continue-reading-grid">
+                
+            </div>
+        </section>
+
+        
+        <section class="section" id="discover">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Kitapları Keşfet</h2>
+                    <p class="section-subtitle">Tüm kitaplar bir tık uzağınızda</p>
+                </div>
+            </div>
+            <div class="book-grid" id="discover-grid">
+                
+            </div>
+        </section>
+
+        
+        <section class="section" id="recommendations" style="display: none;">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Benzer Kitaplar</h2>
+                    <p class="section-subtitle">Okuduğunuz bir kitabı seçin, benzerlerini keşfedin</p>
+                </div>
+            </div>
+            
+            <div class="book-grid" id="recommendations-grid">
+                
+            </div>
+        </section>
+
+    </main>
+
+    
+    <footer style="text-align:center; padding: 48px 24px 32px; color: var(--text-tertiary); font-size: 0.8rem;">
+        <p>© 2026 Book. Tüm hakları saklıdır.</p>
+    </footer>
+
+    
+    <script type="module" src="/js/app.js?v=2"></script>
+
+</body>
+</html>

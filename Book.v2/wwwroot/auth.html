@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap | Jasmina Denner Konsepti</title>
+    
+    <script>
+        if (!window.location.search.includes('v=8')) {
+            window.location.replace(window.location.pathname + '?v=8');
+        }
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/auth.css?v=7">
+</head>
+<body>
+    
+    <div class="ambient-background">
+        
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        
+        
+        <svg class="ambient-svg" width="100%" height="100%" viewBox="0 0 1440 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="animated-path" d="M0,400 C300,600 600,200 1440,400" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1.5"></path>
+            <path class="animated-path delay-1" d="M-100,200 C400,100 800,800 1540,500" fill="none" stroke="rgba(176, 122, 242, 0.1)" stroke-width="1"></path>
+        </svg>
+    </div>
+
+    
+    <main class="auth-wrapper">
+        <div class="auth-content split-layout">
+            
+            
+            <div class="auth-left fade-up">
+                <div class="auth-header-text">
+                    <p class="subtitle">Zihin ve teknolojinin birleştiği okuma deneyimine katıl.</p>
+                </div>
+
+                
+                <div class="form-container">
+                    
+                    
+                    <form id="loginForm" class="auth-form active">
+                        <div class="input-group">
+                            <label for="loginEmail">E-Posta</label>
+                            <input type="email" id="loginEmail" placeholder="ornek@eposta.com" required>
+                            <div class="line-focus"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="loginPassword">Şifre</label>
+                            <input type="password" id="loginPassword" placeholder="••••••••" required>
+                            <div class="line-focus"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="loginBtn">
+                                <span class="btn-text">Giriş Yap</span>
+                                <div class="btn-glow"></div>
+                            </button>
+                        </div>
+                        <div class="form-switch">
+                            <span>Hesabın yok mu?</span>
+                            <button type="button" class="btn-link" onclick="toggleForm('register')">Kayıt Ol</button>
+                        </div>
+                    </form>
+
+                    
+                    <form id="registerForm" class="auth-form hidden">
+                        <div class="input-group">
+                            <label for="regUsername">Kullanıcı Adı</label>
+                            <input type="text" id="regUsername" placeholder="jasminadenner" required>
+                            <div class="line-focus"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="regEmail">E-Posta</label>
+                            <input type="email" id="regEmail" placeholder="ornek@eposta.com" required>
+                            <div class="line-focus"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="regPassword">Şifre</label>
+                            <input type="password" id="regPassword" placeholder="••••••••" required>
+                            <div class="line-focus"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="registerBtn">
+                                <span class="btn-text">Kayıt Ol</span>
+                                <div class="btn-glow"></div>
+                            </button>
+                        </div>
+                        <div class="form-switch">
+                            <span>Zaten hesabın var mı?</span>
+                            <button type="button" class="btn-link" onclick="toggleForm('login')">Giriş Yap</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+            
+            <div class="auth-right fade-up delay-2">
+                <div class="statue-motif large-statue">
+                    
+                    <img src="https://jasminadenner.com/assets/images/image01.png" alt="Klasik Büst" class="glow-statue-img">
+                    
+                    
+                    <div class="firefly firefly-1"></div>
+                    <div class="firefly firefly-2"></div>
+                    <div class="firefly firefly-3"></div>
+                    <div class="firefly firefly-4"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="/js/auth.js"></script>
+</body>
+</html>

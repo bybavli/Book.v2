@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Book — Dijital okuma deneyimi. Sayfaları çevirin, ilerlemelerinizi kaydedin.">
+    <meta name="theme-color" content="#124330">
+    <title>Okuyucu — Book</title>
+
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23124330'/><text x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='52' fill='white'>B</text></svg>">
+
+    
+    <link rel="stylesheet" href="css/variables.css?v=3">
+    <link rel="stylesheet" href="css/base.css?v=3">
+    <link rel="stylesheet" href="css/components.css?v=3">
+    <link rel="stylesheet" href="css/reader.css?v=4">
+    <link rel="stylesheet" href="css/animations.css?v=3">
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+</head>
+<body>
+
+    
+    <div class="ambient-background">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        
+        
+        <svg class="ambient-svg" width="100%" height="100%" viewBox="0 0 1440 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="animated-path" d="M0,400 C300,600 600,200 1440,400" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1.5"></path>
+            <path class="animated-path delay-1" d="M-100,200 C400,100 800,800 1540,500" fill="none" stroke="rgba(176, 122, 242, 0.1)" stroke-width="1"></path>
+        </svg>
+    </div>
+
+    
+    <header class="header">
+        <div class="header-inner">
+            
+            <a href="index.html?v=999" class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                </div>
+                <span class="logo-text">Book</span>
+            </a>
+
+            
+            <div style="flex:1;"></div>
+
+            
+            <a href="index.html?v=999" class="btn btn-ghost btn-sm">
+                <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                Kütüphane
+            </a>
+        </div>
+    </header>
+
+    
+    <div class="reader-container" id="reader-container">
+        
+        <div class="reader-loading">
+            <div class="reader-loading-book">
+                <svg viewBox="0 0 24 24" style="stroke:var(--text-tertiary);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+            </div>
+            <div class="reader-loading-text">Kitap yükleniyor…</div>
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    
+    <script type="module" src="js/reader.js?v=3"></script>
+
+</body>
+</html>
